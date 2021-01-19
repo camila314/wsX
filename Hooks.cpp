@@ -139,7 +139,7 @@ void* __cdecl routBoth() {
     wptr a = 0;
     __asm mov[a], ecx;
     double b = *reinterpret_cast<double*>(a + 0x450); // this -> field 0x450
-    printf("x positon is %f\n", b);
+    //printf("x positon is %f\n", b);
     //void* ret_val = og(a, b);
     if (play_record == 1 || play_record == 3) {
         rout_rec(a, b);
@@ -235,9 +235,7 @@ void __fastcall deltaOverride(wptr a, void*, float b) {
 }
 
 void __fastcall fpsLock(void* instance, void* dummy, double fps) {
-    if (instance != 0) {
-        return;
-    }
+    if (instance) return;
     setAnimInt(instance, fps);
 }
 
@@ -261,5 +259,6 @@ void setupAddresses() {
 
     void* fps_lock = GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z");
     rd_route(fps_lock, fpsLock, setAnimInt);
+
     printf("its injected: %p\n", cocos_dispatch);
 }
