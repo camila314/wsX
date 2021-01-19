@@ -114,8 +114,8 @@ void rout_play(wptr a, double b) {
     }
 }
 
-void* __cdecl routBoth(/*wptr a,*/ /*float _b*/) {
-    uintptr_t a = 0;
+void* __cdecl routBoth() {
+    wptr a = 0;
     __asm mov[a], ecx;
     double b = *reinterpret_cast<double*>(a + 0x450); // this -> field 0x450
     printf("x positon is %f\n", b);
@@ -126,8 +126,7 @@ void* __cdecl routBoth(/*wptr a,*/ /*float _b*/) {
     else if (play_record == 0) {
         rout_play(a, b);
     }
-    __asm mov ecx, [a];
-    return og(a, b);
+    return og(a,b);
 }
 
 void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
