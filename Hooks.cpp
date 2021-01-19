@@ -240,13 +240,11 @@ void setupAddresses() {
     shared_director = reinterpret_cast<void*(__cdecl*)(void)>(GetProcAddress(cocosbase, "?sharedDirector@CCDirector@cocos2d@@SAPAV12@XZ"));
     shared_scheduler = reinterpret_cast<void*(__thiscall*)(void*)>(GetProcAddress(cocosbase, "?getShaderProgram@CCTexture2D@cocos2d@@UAEPAVCCGLProgram@2@XZ"));
 
-
     rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);
 
     void* cocos_dispatch = GetProcAddress(cocosbase, "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z");
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
-
 
     printf("its injected: %p\n", cocos_dispatch);
 }
