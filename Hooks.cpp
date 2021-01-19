@@ -150,8 +150,8 @@ void* __cdecl routBoth() {
     return og(a,b);
 }
 
-void __fastcall eventClickCallback(void* inst, void*, void* ev, unsigned int clic) {
-    touches(inst, ev, clic);
+void __fastcall eventClickCallback(void* inst, void*, void* set, void* ev, unsigned int clic) {
+    touches(inst, set, ev, clic);
     if (play_record == 1 && arrayCounter < arraySize) {
         if (clic != 0 && clic != 2) {
             return;
