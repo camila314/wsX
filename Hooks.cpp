@@ -27,6 +27,7 @@ bool loadFromFile(const char* fileName) {
 bool saveToFile(const char* fileName) {
     FILE* saveLocation;
     fopen_s(&saveLocation, fileName, "wb");
+    if (!saveLocation) return false;
     fwrite(Macro, sizeof(MType), arraySize, saveLocation);
     fclose(saveLocation);
     return true;
