@@ -231,7 +231,7 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
 }
 
 void __fastcall deltaOverride(wptr a, void*, float b) {
-    playupdate(a, 1.0f / (SPEED * FPS));
+    playupdate(a, 1.0f / (SPEED*FPS));
 }
 
 void __fastcall fpsLock(void* instance, void* dummy, double fps) {
@@ -252,7 +252,7 @@ void setupAddresses() {
     shared_director = reinterpret_cast<void*(__cdecl*)(void)>(GetProcAddress(cocosbase, "?sharedDirector@CCDirector@cocos2d@@SAPAV12@XZ"));
     shared_scheduler = reinterpret_cast<void*(__thiscall*)(void*)>(GetProcAddress(cocosbase, "?getShaderProgram@CCTexture2D@cocos2d@@UAEPAVCCGLProgram@2@XZ"));
     sharedApplication = reinterpret_cast<void* (__stdcall*)(void)>(GetProcAddress(cocosbase, "?sharedApplication@CCApplication@cocos2d@@SAPAV12@XZ"));
-    setAnimInt = reinterpret_cast<void(__thiscall*)(void*, double)>(GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z"));
+    //setAnimInt = reinterpret_cast<void(__thiscall*)(void*, double)>(GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z"));
     rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);
 
@@ -260,6 +260,6 @@ void setupAddresses() {
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
 
     void* fps_lock = GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z");
-    
+    rd_route(fps_lock, fpsLock, setAnimInt);
     printf("its injected: %p\n", cocos_dispatch);
 }
