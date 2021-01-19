@@ -111,17 +111,16 @@ void rout_play(wptr a, double b) {
     }
 }
 
-void __fastcall routBoth(wptr a, void*, float b) {
-    og(a, 1./(SPEED*FPS));
-
-    double time = *((double*)(a + 0x450));
-
+void* __cdecl routBoth(wptr a, double b) {
+    printf("x positon is %f\n", b);
+    void* ret_val = og(a, b);
     if (play_record == 1 || play_record == 3) {
-        rout_rec(a, time);
+        rout_rec(a, b);
     }
     else if (play_record == 0) {
-        rout_play(a, time);
+        rout_play(a, b);
     }
+    return ret_val;
 }
 
 void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
@@ -204,12 +203,17 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
     }
 }
 
+void __fastcall deltaOverride(wptr a, void*, float b) {
+    playupdate(a, 1. / (SPEED * FPS));
+}
+
 void setupAddresses() {
     MH_Initialize();
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
     cocosbase = GetModuleHandleA("libcocos2d.dll");
 
-    rd_route(base+0x2029c0, routBoth, og);
+    rd_route(base+0x20af40, routBoth, og);
+    rd_route(base + 0x2029c0, deltaOverride, playupdate);
 
     void* cocos_dispatch = GetProcAddress(cocosbase, "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z");
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
