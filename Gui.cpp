@@ -1,7 +1,9 @@
 #include "pch.h"
 #include <Windows.h>
 #include <commdlg.h>
+#include <cstdlib>
 #include "Gui.h"
+#include "InputBox.h"
 
 void getFileOpenName(bool (*callback)(const char*)) {
     OPENFILENAMEA info;
@@ -31,4 +33,11 @@ void getFileSaveName(bool (*callback)(const char*)) {
     if (GetSaveFileNameA(&info)) {
         callback(info.lpstrFile);
     }
+}
+
+void getSpeed(void (*callback)(float)) {
+    char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"60.0");
+    char* didWork;
+    double num = strtod(out, &didWork);
+    callback(num);
 }

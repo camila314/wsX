@@ -30,6 +30,9 @@
     <ClInclude Include="Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

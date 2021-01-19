@@ -46,6 +46,10 @@ void (*ogMain)(void*);
 void (*playDeathEffect)(void*);
 long (*sharedManager)(void);
 
+void* (__cdecl* shared_director)(void);
+void* (__thiscall* shared_scheduler)(void*);
+void(__thiscall* set_time_scale)(void*, float);
+
 int macro_counter = 0;
 int play_record = 4;
 

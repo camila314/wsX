@@ -8,6 +8,13 @@
     MH_EnableHook((void*)(a))
 #define unimplemented() printf("%s\n", "unimplemented~!")
 
+void changeSpeed(float num) {
+    if (num == 0.0) return;
+    //float n = (1.0 / (FPS * num));
+    set_time_scale(shared_scheduler(shared_director()), 1. / num);
+    SPEED = num;
+}
+
 bool loadFromFile(const char* fileName) {
     FILE* saveLocation;
     fopen_s(&saveLocation, fileName, "rb");
@@ -185,8 +192,8 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
                 doIPaste = true;
                 return;
             case 67:
-                //getSpeed(changeSpeed);
-                unimplemented();
+                getSpeed(changeSpeed);
+                //unimplemented();
                 return;
             case 70:
                 //getFps(changeFps);
@@ -227,6 +234,11 @@ void setupAddresses() {
     cocosbase = GetModuleHandleA("libcocos2d.dll");
 
     if (!cocosbase) return;
+
+    set_time_scale = reinterpret_cast<void(__thiscall*)(void*,float)>(GetProcAddress(cocosbase, "?setTimeScale@CCScheduler@cocos2d@@QAEXM@Z"));
+    shared_director = reinterpret_cast<void*(__cdecl*)(void)>(GetProcAddress(cocosbase, "?sharedDirector@CCDirector@cocos2d@@SAPAV12@XZ"));
+    shared_scheduler = reinterpret_cast<void*(__thiscall*)(void*)>(GetProcAddress(cocosbase, "?getShaderProgram@CCTexture2D@cocos2d@@UAEPAVCCGLProgram@2@XZ"));
+
 
     rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);

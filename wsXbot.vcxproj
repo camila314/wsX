@@ -163,6 +163,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="Hooks.h" />
+    <ClInclude Include="InputBox.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Symbols.h" />
   </ItemGroup>
@@ -170,6 +171,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Hooks.cpp" />
+    <ClCompile Include="InputBox.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
