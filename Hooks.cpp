@@ -33,14 +33,13 @@ bool saveToFile(const char* fileName) {
     FILE* saveLocation;
     fopen_s(&saveLocation, fileName, "wb");
     if (!saveLocation) return false;
-    fwrite(Macro, sizeof(MType), arraySize, saveLocation);
+    fwrite(&Macro, sizeof(MType), arraySize, saveLocation);
     fclose(saveLocation);
     return true;
 }
 
 void rout_rec(wptr a, double b) {
     if (arrayCounter >= arraySize) return;
-
 
     if (prev_xpos == 0.0 && practice_record_mode) {
         //printf("we at 0,  checkweight is %lf\n", practice_hiddencheckweight);
@@ -81,10 +80,11 @@ void rout_rec(wptr a, double b) {
     }
     if (modifier2 == 1) {
         if (!practice_record_mode) {
+            printf("added to macro\n");
             MType tmp;
             tmp.xpos = b;
             tmp.key = SPACE;
-            tmp.down = modifier1_keyDown;
+            tmp.down = modifier2_keyDown;
             Macro[arrayCounter] = tmp;
             //if (remotePort && CFMessagePortIsValid(remotePort))
             //    sendAdd(arrayCounter, &tmp);
@@ -123,7 +123,7 @@ void rout_play(wptr a, double b) {
     register double macroXpos = currnt.xpos;
     //printf("epic %lf moment, macro index %d, real position %lf\n", macroXpos, macro_counter, b);
     if (macroXpos <= b && macroXpos != 0 && macroXpos > stop_spam_prev) {
-        printf("playback\n");
+        printf("playback: %d with down: %d\n", currnt.key, currnt.down);
         dispatch_og(dispatcherObject, currnt.key, currnt.down);
 
         stop_spam_prev = macroXpos;
@@ -165,6 +165,7 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
                 modifier1_keyDown = isdown;
             }
             else if (key == SPACE && modifier2_keyDown != isdown) {
+                printf("ok\n");
                 modifier2 = 1;
                 modifier2_keyDown = isdown;
             }
@@ -239,6 +240,27 @@ void __fastcall fpsLock(void* instance, void* dummy, double fps) {
     setAnimInt(instance, fps);
 }
 
+void __fastcall pickuphook(void* instance, void* dummy, int a, int b) {
+    //printf("first param %d second param %d\n", a, b)
+
+    if (play_record == 3 && b!=0) {
+        if (a == 628) {
+            pickupCount = b;
+        } else if (b == pickupCount || b == pickupCount-2) {
+
+            int down = b==pickupCount;
+            dispatch_og(dispatcherObject, 32, down);
+            modifier1 = 1;
+            modifier1_keyDown = down;
+        }
+    }
+    pickup(instance, a, b);
+}
+
+void* __fastcall editorLock(void* inst, void* dummy, float delta) {
+    return editorInit(inst, 1.0f / (SPEED * FPS));
+}
+
 void setupAddresses() {
     MH_Initialize();
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
@@ -253,6 +275,7 @@ void setupAddresses() {
     //setAnimInt = reinterpret_cast<void(__thiscall*)(void*, double)>(GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z"));
     rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);
+    rd_route(base + 0x26a660, editorLock, editorInit);
 
     void* cocos_dispatch = GetProcAddress(cocosbase, "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z");
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
@@ -260,5 +283,6 @@ void setupAddresses() {
     void* fps_lock = GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z");
     rd_route(fps_lock, fpsLock, setAnimInt);
 
+    rd_route(base + 0x111890, pickuphook, pickup);
     printf("its injected: %p\n", cocos_dispatch);
 }

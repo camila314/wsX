@@ -33,9 +33,9 @@ void* (__thiscall *og)(wptr, double);
 void(__thiscall* playupdate)(wptr, float);
 void* (__thiscall *dispatch_og)(void*, int, bool);
 void* (*createPlay)(void*);
-void* (*editorInit)(void*, float);
-void (*increment)(void*, int);  // = 0x185a20;
-void (*decrement)(void*, int);  // = 0x185b70;
+void* (__thiscall *editorInit)(void*, float);
+void (__thiscall *pickup)(void*, int, int);  // = 0x185a20;
+//void (*decrement)(void*, int);  // = 0x185b70;
 void (*practice_og)(void*, bool);
 void (*practice_ogCheckpoint)(void*);
 void (*practice_ogRemove)(void*);
@@ -71,6 +71,7 @@ bool practice_record_mode = false;
 
 bool audioEnabled = false;
 
+int pickupCount = 1;
 
 float SPEED = 1;
 float FPS = 60.0;
