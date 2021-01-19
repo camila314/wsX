@@ -8,10 +8,13 @@
     MH_EnableHook((void*)(a))
 #define unimplemented() printf("%s\n", "unimplemented~!")
 
-void loadFromFile(char* fileName) {
-    FILE* saveLocation = fopen(fileName, "rb");
+bool loadFromFile(const char* fileName) {
+    FILE* saveLocation;
+    fopen_s(&saveLocation, fileName, "rb");
+    if (!saveLocation) return false;
     fread(Macro, sizeof(MType), arraySize, saveLocation);
     fclose(saveLocation);
+    return true;
 }
 
 void rout_rec(wptr a, double b) {
@@ -82,7 +85,7 @@ void rout_rec(wptr a, double b) {
 
 void rout_play(wptr a, double b) {
     b -= 0.0000001;
-    if (b <= 1. / (SPEED*FPS)) {
+    if (b <= 1.0f / (SPEED * FPS)) {
         printf("beginning of level\n");
         macro_counter = 0;
         stop_spam_prev = 0.0;
@@ -111,16 +114,20 @@ void rout_play(wptr a, double b) {
     }
 }
 
-void* __cdecl routBoth(wptr a, double b) {
+void* __cdecl routBoth(/*wptr a,*/ /*float _b*/) {
+    uintptr_t a = 0;
+    __asm mov[a], ecx;
+    double b = *reinterpret_cast<double*>(a + 0x450);
     printf("x positon is %f\n", b);
-    void* ret_val = og(a, b);
+    //void* ret_val = og(a, b);
     if (play_record == 1 || play_record == 3) {
         rout_rec(a, b);
     }
     else if (play_record == 0) {
         rout_play(a, b);
     }
-    return ret_val;
+    __asm mov ecx, [a];
+    return og(a, b);
 }
 
 void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
@@ -204,7 +211,7 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
 }
 
 void __fastcall deltaOverride(wptr a, void*, float b) {
-    playupdate(a, 1. / (SPEED * FPS));
+    playupdate(a, 1.0f / (SPEED * FPS));
 }
 
 void setupAddresses() {
@@ -212,7 +219,9 @@ void setupAddresses() {
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
     cocosbase = GetModuleHandleA("libcocos2d.dll");
 
-    rd_route(base+0x20af40, routBoth, og);
+    if (!cocosbase) return;
+
+    rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);
 
     void* cocos_dispatch = GetProcAddress(cocosbase, "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z");

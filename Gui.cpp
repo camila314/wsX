@@ -3,7 +3,7 @@
 #include <commdlg.h>
 #include "Gui.h"
 
-void getFileOpenName(void (*callback)(char*)) {
+void getFileOpenName(bool (*callback)(const char*)) {
     OPENFILENAMEA info;
     ZeroMemory(&info, sizeof info);
     CHAR fileName[MAX_PATH] = "";

@@ -1,3 +1,3 @@
 #pragma once
 
-extern void getFileOpenName(void (*callback)(char*));
+void getFileOpenName(bool (*callback)(const char*));
