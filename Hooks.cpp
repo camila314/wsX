@@ -17,6 +17,14 @@ bool loadFromFile(const char* fileName) {
     return true;
 }
 
+bool saveToFile(const char* fileName) {
+    FILE* saveLocation;
+    fopen_s(&saveLocation, fileName, "wb");
+    fwrite(Macro, sizeof(MType), arraySize, saveLocation);
+    fclose(saveLocation);
+    return true;
+}
+
 void rout_rec(wptr a, double b) {
     if (arrayCounter >= arraySize) return;
 
@@ -185,8 +193,8 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
                 unimplemented();
                 return;
             case 83:
-                //getFileSaveName(saveToFile);
-                unimplemented();
+                getFileSaveName(saveToFile);
+                //unimplemented();
                 return;
             case 76:
                 getFileOpenName(loadFromFile);
