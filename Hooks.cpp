@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "fps.h"
 #include "Symbols.h"
 #include "Hooks.h"
 #include "Gui.h"
@@ -13,6 +12,12 @@ void changeSpeed(float num) {
     //float n = (1.0 / (FPS * num));
     set_time_scale(shared_scheduler(shared_director()), 1. / num);
     SPEED = num;
+}
+
+void changeFps(double fps) {
+    if (fps == 0.0) return;
+    setAnimInt(sharedApplication(), 1. / fps);
+    FPS = fps;
 }
 
 bool loadFromFile(const char* fileName) {
@@ -229,6 +234,13 @@ void __fastcall deltaOverride(wptr a, void*, float b) {
     playupdate(a, 1.0f / (SPEED * FPS));
 }
 
+void __fastcall fpsLock(void* instance, void* dummy, double fps) {
+    if (instance != 0) {
+        return;
+    }
+    setAnimInt(instance, fps);
+}
+
 void setupAddresses() {
     MH_Initialize();
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
@@ -239,12 +251,15 @@ void setupAddresses() {
     set_time_scale = reinterpret_cast<void(__thiscall*)(void*,float)>(GetProcAddress(cocosbase, "?setTimeScale@CCScheduler@cocos2d@@QAEXM@Z"));
     shared_director = reinterpret_cast<void*(__cdecl*)(void)>(GetProcAddress(cocosbase, "?sharedDirector@CCDirector@cocos2d@@SAPAV12@XZ"));
     shared_scheduler = reinterpret_cast<void*(__thiscall*)(void*)>(GetProcAddress(cocosbase, "?getShaderProgram@CCTexture2D@cocos2d@@UAEPAVCCGLProgram@2@XZ"));
-
+    sharedApplication = reinterpret_cast<void* (__stdcall*)(void)>(GetProcAddress(cocosbase, "?sharedApplication@CCApplication@cocos2d@@SAPAV12@XZ"));
+    setAnimInt = reinterpret_cast<void(__thiscall*)(void*, double)>(GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z"));
     rd_route(base + 0x20af40, routBoth, og);
     rd_route(base + 0x2029c0, deltaOverride, playupdate);
 
     void* cocos_dispatch = GetProcAddress(cocosbase, "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z");
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
 
+    void* fps_lock = GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z");
+    
     printf("its injected: %p\n", cocos_dispatch);
 }

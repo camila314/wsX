@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <commdlg.h>
 #include <cstdlib>
+#include <cstdio>
 #include "Gui.h"
 #include "InputBox.h"
 
@@ -36,15 +37,25 @@ void getFileSaveName(bool (*callback)(const char*)) {
 }
 
 void getSpeed(void (*callback)(float)) {
-    char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"60.0");
+    char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"1.0");
     char* didWork;
     double num = strtod(out, &didWork);
-    callback(num);
+    if (*didWork) {
+        printf("invalid number\n");
+    }
+    else {
+        callback(num);
+    }
 }
 
-void getFps(bool (*callback)(const double&)) {
+void getFps(void (*callback)(double)) {
     char* out = InputBox((char*)"Change FPS", (char*)"wsX", (char*)"60.0");
     char* didWork;
     double num = strtod(out, &didWork);
-    callback(num);
+    if (*didWork) {
+        printf("invalid number\n");
+    }
+    else {
+        callback(num);
+    }
 }

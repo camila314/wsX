@@ -45,7 +45,8 @@ void (*pasteObjects)(void*, void*);
 void (*ogMain)(void*);
 void (*playDeathEffect)(void*);
 long (*sharedManager)(void);
-
+void* (__stdcall *sharedApplication)();
+void(__thiscall* setAnimInt)(void*, double);
 void* (__cdecl* shared_director)(void);
 void* (__thiscall* shared_scheduler)(void*);
 void(__thiscall* set_time_scale)(void*, float);

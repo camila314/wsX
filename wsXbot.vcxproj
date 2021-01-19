@@ -160,7 +160,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="fps.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="Hooks.h" />
@@ -170,7 +169,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="fps.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="InputBox.cpp" />
