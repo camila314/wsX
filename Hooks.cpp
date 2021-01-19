@@ -150,6 +150,21 @@ void* __cdecl routBoth() {
     return og(a,b);
 }
 
+void __fastcall eventClickCallback(void* inst, void*, void* ev, unsigned int clic) {
+    touches(inst, ev, clic);
+    if (play_record == 1 && arrayCounter < arraySize) {
+        if (clic != 0 && clic != 2) {
+            return;
+        }
+        bool down = clic == 0;
+        if (modifier2_keyDown!=down) {
+            printf("click\n");
+            modifier2 = 1;
+            modifier2_keyDown = down;
+        }
+    }
+}
+
 void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
     dispatcherObject = inst;
 
@@ -284,5 +299,8 @@ void setupAddresses() {
     rd_route(fps_lock, fpsLock, setAnimInt);
 
     rd_route(base + 0x111890, pickuphook, pickup);
+
+    void* touche = GetProcAddress(cocosbase, "?touches@CCTouchDispatcher@cocos2d@@QAEXPAVCCSet@2@PAVCCEvent@2@I@Z");
+    rd_route(touche, eventClickCallback, touches);
     printf("its injected: %p\n", cocos_dispatch);
 }
