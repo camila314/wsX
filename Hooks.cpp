@@ -117,7 +117,7 @@ void rout_play(wptr a, double b) {
 void* __cdecl routBoth(/*wptr a,*/ /*float _b*/) {
     uintptr_t a = 0;
     __asm mov[a], ecx;
-    double b = *reinterpret_cast<double*>(a + 0x450);
+    double b = *reinterpret_cast<double*>(a + 0x450); // this -> field 0x450
     printf("x positon is %f\n", b);
     //void* ret_val = og(a, b);
     if (play_record == 1 || play_record == 3) {
