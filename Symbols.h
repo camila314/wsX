@@ -29,7 +29,7 @@ void* dispatcherObject;
 long scheduler_update;
 
 void* (*scheduler_update_tramp)(void*);
-void* (__cdecl *og)(float);
+void* (__thiscall *og)(wptr, double);
 void(__thiscall* playupdate)(wptr, float);
 void* (__thiscall *dispatch_og)(void*, int, bool);
 void* (*createPlay)(void*);
