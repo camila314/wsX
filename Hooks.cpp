@@ -1,5 +1,5 @@
 #include "pch.h"
-
+#include "fps.h"
 #include "Symbols.h"
 #include "Hooks.h"
 #include "Gui.h"
@@ -197,8 +197,8 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
                 //unimplemented();
                 return;
             case 70:
-                //getFps(changeFps);
-                unimplemented();
+                getFps(changeFps);
+                //unimplemented();
                 return;
             case 83:
                 getFileSaveName(saveToFile);

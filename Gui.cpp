@@ -41,3 +41,10 @@ void getSpeed(void (*callback)(float)) {
     double num = strtod(out, &didWork);
     callback(num);
 }
+
+void getFps(bool (*callback)(const double&)) {
+    char* out = InputBox((char*)"Change FPS", (char*)"wsX", (char*)"60.0");
+    char* didWork;
+    double num = strtod(out, &didWork);
+    callback(num);
+}
