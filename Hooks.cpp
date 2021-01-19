@@ -235,9 +235,7 @@ void __fastcall deltaOverride(wptr a, void*, float b) {
 }
 
 void __fastcall fpsLock(void* instance, void* dummy, double fps) {
-    if (instance != 0) {
-        return;
-    }
+    if (instance) return;
     setAnimInt(instance, fps);
 }
 
@@ -260,6 +258,7 @@ void setupAddresses() {
     rd_route(cocos_dispatch, eventTapCallback, dispatch_og);
 
     void* fps_lock = GetProcAddress(cocosbase, "?setAnimationInterval@CCApplication@cocos2d@@UAEXN@Z");
-    
+    rd_route(fps_lock, fpsLock, setAnimInt);
+
     printf("its injected: %p\n", cocos_dispatch);
 }
