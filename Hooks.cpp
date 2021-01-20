@@ -38,17 +38,78 @@ bool saveToFile(const char* fileName) {
     return true;
 }
 
+void practicePrune(double pos) {
+    for (int i = 0; i < arrayCounter; i++) {
+        if (PracticeMode[i].xpos >= pos) {
+            arrayCounter = i;
+            break;
+        }
+    }
+}
+
+char const* getPickupString() {
+
+    std::string output;
+
+    for (int i = 0; i < arrayCounter; i++) {
+        MType event = PracticeMode[i];
+        if (event.key != SPACE && event.key != ARROW)
+            break;
+        int itemid = 1;
+        int count = -1;
+        if (event.down == true) {
+            itemid = 0;
+            count = 1;
+        }
+        printf("test: %f\n", 432.0);
+        char formatted[256];
+        sprintf_s(formatted, "1,1817,2,%lf,3,%d,36,1,80,%d,77,%d;", event.xpos, 100 + (50 * itemid), itemid, count);
+        output += formatted;
+    }
+
+    if (output.length() > 2) {
+        output.pop_back();
+        return output.c_str();
+    }
+    else {
+        return "9";
+    }
+}
+
+void pastePickups() {
+    char const* lvlstring = getPickupString();
+
+    if (*lvlstring == '9') {
+        printf("why did you press k\n");
+        return;
+    }
+
+    printf("before the standard string\n");
+    std::string stdstring(lvlstring);
+    printf("standard string\n");
+
+    int64_t state = base+0x3222D0;
+    int64_t layer = *((int64_t*)(state + 0x168));
+    if (layer) {
+        void* editor = *((void**)(layer + 0x380));
+        pasteObjects(editor, stdstring);
+    }
+    else {
+        printf("you arent even in the editor lmao\n");
+    }
+}
+
 void rout_rec(wptr a, double b) {
     if (arrayCounter >= arraySize) return;
 
     if (prev_xpos == 0.0 && practice_record_mode) {
-        //printf("we at 0,  checkweight is %lf\n", practice_hiddencheckweight);
-        //practicePrune(practice_hiddencheckweight);
+        printf("we at 0,  checkweight is %lf\n", practice_hiddencheckweight);
+        practicePrune(practice_hiddencheckweight);
     }
 
     if (practice_record_mode) {
-        /*int64_t playobj = *((int64_t*)(a + 0x380));
-        prev_xpos = *((float*)(playobj + 0x7c8));*/
+        wptr playobj = *((wptr*)(a + 0x224));
+        prev_xpos = *((float*)(playobj + 0x67c));
     }
     else {
         prev_xpos = b;
@@ -68,13 +129,13 @@ void rout_rec(wptr a, double b) {
             //    sendAdd(arrayCounter, &tmp);
         }
         else {
-            unimplemented();
-            /*MType tmp;
+            //unimplemented();
+            MType tmp;
             double xpos = prev_xpos;
             tmp.xpos = xpos;
             tmp.key = ARROW;
             tmp.down = modifier1_keyDown;
-            PracticeMode[arrayCounter] = tmp;*/
+            PracticeMode[arrayCounter] = tmp;
         }
         ++arrayCounter;
     }
@@ -90,13 +151,13 @@ void rout_rec(wptr a, double b) {
             //    sendAdd(arrayCounter, &tmp);
         }
         else {
-            unimplemented();
-            /* MType tmp;
+            //unimplemented();
+            MType tmp;
             double xpos = prev_xpos;
             tmp.xpos = b;
             tmp.key = SPACE;
             tmp.down = modifier1_keyDown;
-            PracticeMode[arrayCounter] = tmp;*/
+            PracticeMode[arrayCounter] = tmp;
         }
         ++arrayCounter;
     }
@@ -132,6 +193,46 @@ void rout_play(wptr a, double b) {
 
         macro_counter++;
         arrayCounter = macro_counter;
+    }
+}
+
+void __fastcall practice_toggle(void* instance, void*, bool toggle) {
+    practice_og(instance, toggle);
+
+    practice_record_mode = toggle;
+    practice_playerweight = 0;
+    if (toggle)
+        arrayCounter = 0;
+}
+void* __stdcall newLevel(void* inst) {
+    practice_record_mode = false;
+    arrayCounter = 0;
+    return createPlay(inst);
+}
+
+void practice_markCheckpoint(void* instance) {
+    practice_ogCheckpoint(instance);
+
+    if (prev_xpos != 0) {
+        checkpoints->push_back(prev_xpos);
+        practice_hiddencheckweight = prev_xpos;
+
+
+        printf("added checkweight. weight: %lf\n", practice_hiddencheckweight);
+    }
+}
+void practice_removeCheckpoint(void* instance) {
+    practice_ogRemove(instance);
+    checkpoints->pop_back();
+    practice_hiddencheckweight = checkpoints->back();
+    printf("removed checkweight. weight: %lf\n", practice_hiddencheckweight);
+}
+void practice_playerDies(void* instance, void* player, void* game) {
+    practice_ogDies(instance, player, game);
+    if (practice_record_mode) {
+        practice_playerweight = prev_xpos;
+        practicePrune(practice_hiddencheckweight);
+        prev_xpos = 0.0;
     }
 }
 
@@ -188,7 +289,7 @@ void __fastcall eventTapCallback(void* inst, void*, int key, bool isdown) {
         return;
     }
     else if (isdown) {
-        if (key == 9)
+        if (key == 190)
             keybinds = !keybinds;
         if (keybinds) {
             switch (key) {
@@ -255,6 +356,14 @@ void __fastcall fpsLock(void* instance, void* dummy, double fps) {
     setAnimInt(instance, fps);
 }
 
+void __fastcall mainLoop(void* instance, void*, float delta) {
+    if (doIPaste) {
+        pastePickups();
+        doIPaste = false;
+    }
+    ogMain(instance, delta);
+}
+
 void __fastcall pickuphook(void* instance, void* dummy, int a, int b) {
     //printf("first param %d second param %d\n", a, b)
 
@@ -278,8 +387,11 @@ void* __fastcall editorLock(void* inst, void* dummy, float delta) {
 
 void setupAddresses() {
     MH_Initialize();
+    checkpoints = new std::vector<double>();
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
     cocosbase = GetModuleHandleA("libcocos2d.dll");
+
+    pasteObjects = reinterpret_cast<void(__thiscall*)(void*, std::string)>(base + 0x88240);
 
     if (!cocosbase) return;
 
@@ -302,5 +414,14 @@ void setupAddresses() {
 
     void* touche = GetProcAddress(cocosbase, "?touches@CCTouchDispatcher@cocos2d@@QAEXPAVCCSet@2@PAVCCEvent@2@I@Z");
     rd_route(touche, eventClickCallback, touches);
+
+    rd_route(base + 0x20D0D1, practice_toggle, practice_og);
+    rd_route(base + 0x20b450, practice_markCheckpoint, practice_ogCheckpoint);
+    rd_route(base + 0x20B830, practice_removeCheckpoint, practice_ogRemove);
+    rd_route(base + 0x20a1a0, practice_playerDies, practice_ogDies);
+    rd_route(base + 0x1fb6d0, newLevel, createPlay);
+
+    void* mainthread = GetProcAddress(cocosbase, "?update@CCScheduler@cocos2d@@UAEXM@Z");
+    rd_route(mainthread, mainLoop, ogMain);
     printf("its injected: %p\n", cocos_dispatch);
 }

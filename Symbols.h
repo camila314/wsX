@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 #include <stdbool.h>
+#include <vector>
+#include <string>
 
 #define SPACE 32
 #define ARROW 38
@@ -32,19 +34,18 @@ void* (*scheduler_update_tramp)(void*);
 void* (__thiscall *og)(wptr, double);
 void(__thiscall* playupdate)(wptr, float);
 void* (__thiscall *dispatch_og)(void*, int, bool);
-void* (*createPlay)(void*);
+void* (__stdcall *createPlay)(void*);
 void* (__thiscall *editorInit)(void*, float);
 void (__thiscall *pickup)(void*, int, int);  // = 0x185a20;
 //void (*decrement)(void*, int);  // = 0x185b70;
-void (*practice_og)(void*, bool);
-void (*practice_ogCheckpoint)(void*);
-void (*practice_ogRemove)(void*);
+void (__thiscall *practice_og)(void*, bool);
+void (__thiscall *practice_ogCheckpoint)(void*);
+void (__thiscall *practice_ogRemove)(void*);
 void (__thiscall *practice_ogDies)(void*, void*, void*);
 void (*pauseGame)(long, bool);
-void (*pasteObjects)(void*, void*);
-void (*ogMain)(void*);
-void (*playDeathEffect)(void*);
-long (*sharedManager)(void);
+void (__thiscall *pasteObjects)(void*, std::string);
+void (__thiscall *ogMain)(void*, float);
+void (__thiscall *playDeathEffect)(void*);
 void* (__stdcall *sharedApplication)();
 void(__thiscall* setAnimInt)(void*, double);
 void* (__cdecl* shared_director)(void);
@@ -79,3 +80,5 @@ float FPS = 60.0;
 double practice_playerweight, practice_hiddencheckweight = 0.0f;
 double stop_spam_prev = 0.0;
 double prev_xpos = 0.0;
+
+std::vector<double>* checkpoints;
