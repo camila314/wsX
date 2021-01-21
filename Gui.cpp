@@ -40,12 +40,16 @@ template  <typename T, typename R>
 void inputBoxWrapper(const char* prompt, 
     const char* title, 
     const char* default_input, 
-    T(*callback)(R)) {
-    const char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"1.0");
+    T(*callback)(R)) 
+{
+    const char* out = InputBox(
+        (char*)(prompt),
+        (char*)(title),
+        (char*)(default_input));
     char* didWork;
     double num = strtod(out, &didWork);
     if (*didWork)
-        printf("invalid number\n");
+        printf("Invalid number\n");
     else
         callback(num);
 }
