@@ -88,7 +88,7 @@ void pastePickups() {
     std::string stdstring(lvlstring);
     printf("standard string\n");
 
-    int64_t state = base+0x3222D0;
+    int64_t state = base + 0x3222D0;
     int64_t layer = *((int64_t*)(state + 0x168));
     if (layer) {
         void* editor = *((void**)(layer + 0x380));
@@ -197,13 +197,14 @@ void rout_play(wptr a, double b) {
 }
 
 void __fastcall practice_toggle(void* instance, void*, bool toggle) {
-    practice_og(instance, toggle);
-
+    //uint32_t game_manager = *reinterpret_cast<uint32_t*>(base + 0x3222D0);
+    //uint32_t play_layer = *reinterpret_cast<uint32_t*>(game_manager + 0x164);
+    practice_og(/*reinterpret_cast<LPVOID>(play_layer)*/instance, toggle);
     practice_record_mode = toggle;
     practice_playerweight = 0;
-    if (toggle)
-        arrayCounter = 0;
+    if (toggle) arrayCounter = 0;
 }
+
 void* __stdcall newLevel(void* inst) {
     practice_record_mode = false;
     arrayCounter = 0;
@@ -227,7 +228,7 @@ void practice_removeCheckpoint(void* instance) {
     practice_hiddencheckweight = checkpoints->back();
     printf("removed checkweight. weight: %lf\n", practice_hiddencheckweight);
 }
-void practice_playerDies(void* instance, void* player, void* game) {
+void __fastcall practice_playerDies(void* instance, void*, void* player, void* game) {
     practice_ogDies(instance, player, game);
     if (practice_record_mode) {
         practice_playerweight = prev_xpos;
@@ -242,12 +243,10 @@ void* __cdecl routBoth() {
     double b = *reinterpret_cast<double*>(a + 0x450); // this -> field 0x450
     //printf("x positon is %f\n", b);
     //void* ret_val = og(a, b);
-    if (play_record == 1 || play_record == 3) {
+    if (play_record == 1 || play_record == 3)
         rout_rec(a, b);
-    }
-    else if (play_record == 0) {
+    else if (play_record == 0)
         rout_play(a, b);
-    }
     return og(a,b);
 }
 
@@ -415,7 +414,7 @@ void setupAddresses() {
     void* touche = GetProcAddress(cocosbase, "?touches@CCTouchDispatcher@cocos2d@@QAEXPAVCCSet@2@PAVCCEvent@2@I@Z");
     rd_route(touche, eventClickCallback, touches);
 
-    rd_route(base + 0x20D0D1, practice_toggle, practice_og);
+    rd_route(base + 0x20D0D0, practice_toggle, practice_og);
     rd_route(base + 0x20b450, practice_markCheckpoint, practice_ogCheckpoint);
     rd_route(base + 0x20B830, practice_removeCheckpoint, practice_ogRemove);
     rd_route(base + 0x20a1a0, practice_playerDies, practice_ogDies);
