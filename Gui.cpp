@@ -6,7 +6,8 @@
 #include "Gui.h"
 #include "InputBox.h"
 
-void fileDialogWrapper(BOOL WINAPI method(LPOPENFILENAMEA),
+void fileDialogWrapper(
+    BOOL WINAPI method(LPOPENFILENAMEA),
     bool (*callback)(const char*)) 
 {
     OPENFILENAMEA info;
@@ -33,7 +34,8 @@ void getFileSaveName(bool (*callback)(const char*))
 }
 
 template  <typename T, typename R> 
-void inputBoxWrapper(const char* prompt, 
+void inputBoxWrapper(
+    const char* prompt, 
     const char* title, 
     const char* default_input, 
     T(*callback)(R)) 

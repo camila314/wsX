@@ -2,18 +2,19 @@
 #include "pch.h"
 #include "Hooks.h"
 
-DWORD WINAPI osXbotSwag(void* hmod) {
+DWORD WINAPI osXbotSwag(void* hmod) 
+{
     AllocConsole();
     SetConsoleTitleA("osXbot debug");
     freopen_s(reinterpret_cast<FILE**>(stdout), "CONOUT$", "w", stdout);
     setupAddresses();
-    return 0;
+    return FALSE;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(
+    HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved)
 {
     switch (ul_reason_for_call)
     {
