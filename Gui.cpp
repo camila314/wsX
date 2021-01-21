@@ -36,26 +36,24 @@ void getFileSaveName(bool (*callback)(const char*)) {
     }
 }
 
-void getSpeed(void (*callback)(float)) {
-    char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"1.0");
+template  <typename T, typename R> 
+void inputBoxWrapper(const char* prompt, 
+    const char* title, 
+    const char* default_input, 
+    T(*callback)(R)) {
+    const char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"1.0");
     char* didWork;
     double num = strtod(out, &didWork);
-    if (*didWork) {
+    if (*didWork)
         printf("invalid number\n");
-    }
-    else {
+    else
         callback(num);
-    }
+}
+
+void getSpeed(void (*callback)(float)) {
+    inputBoxWrapper("Change speed", "wsX", "1.0", callback);
 }
 
 void getFps(void (*callback)(double)) {
-    char* out = InputBox((char*)"Change FPS", (char*)"wsX", (char*)"60.0");
-    char* didWork;
-    double num = strtod(out, &didWork);
-    if (*didWork) {
-        printf("invalid number\n");
-    }
-    else {
-        callback(num);
-    }
+    inputBoxWrapper("Change FPS", "wsX", "60.0", callback);
 }
