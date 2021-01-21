@@ -6,7 +6,10 @@
 #include "Gui.h"
 #include "InputBox.h"
 
-void getFileOpenName(bool (*callback)(const char*)) {
+void fileDialogWrapper(
+    BOOL WINAPI method(LPOPENFILENAMEA),
+    bool (*callback)(const char*)) 
+{
     OPENFILENAMEA info;
     ZeroMemory(&info, sizeof info);
     CHAR fileName[MAX_PATH] = "";
@@ -16,46 +19,45 @@ void getFileOpenName(bool (*callback)(const char*)) {
     info.lpstrFile = fileName;
     info.nMaxFile = MAX_PATH;
     info.lpstrDefExt = "xgd";
-    if (GetOpenFileNameA(&info)) {
+    if (method(&info)) 
         callback(info.lpstrFile);
-    }
 }
 
-void getFileSaveName(bool (*callback)(const char*)) {
-    OPENFILENAMEA info;
-    ZeroMemory(&info, sizeof info);
-    CHAR fileName[MAX_PATH] = "";
-    info.lStructSize = sizeof info;
-    info.hwndOwner = NULL;
-    info.Flags = OFN_EXPLORER | OFN_HIDEREADONLY;
-    info.lpstrFile = fileName;
-    info.nMaxFile = MAX_PATH;
-    info.lpstrDefExt = "xgd";
-    if (GetSaveFileNameA(&info)) {
-        callback(info.lpstrFile);
-    }
+void getFileOpenName(bool (*callback)(const char*)) 
+{
+    fileDialogWrapper(GetOpenFileNameA, callback);
 }
 
-void getSpeed(void (*callback)(float)) {
-    char* out = InputBox((char*)"Change speed", (char*)"wsX", (char*)"1.0");
+void getFileSaveName(bool (*callback)(const char*)) 
+{
+    fileDialogWrapper(GetSaveFileNameA, callback);
+}
+
+template  <typename T, typename R> 
+void inputBoxWrapper(
+    const char* prompt, 
+    const char* title, 
+    const char* default_input, 
+    T(*callback)(R)) 
+{
+    const char* out = InputBox(
+        (char*)(prompt),
+        (char*)(title),
+        (char*)(default_input));
     char* didWork;
     double num = strtod(out, &didWork);
-    if (*didWork) {
-        printf("invalid number\n");
-    }
-    else {
+    if (*didWork)
+        printf("Invalid number\n");
+    else
         callback(num);
-    }
 }
 
-void getFps(void (*callback)(double)) {
-    char* out = InputBox((char*)"Change FPS", (char*)"wsX", (char*)"60.0");
-    char* didWork;
-    double num = strtod(out, &didWork);
-    if (*didWork) {
-        printf("invalid number\n");
-    }
-    else {
-        callback(num);
-    }
+void getSpeed(void (*callback)(float)) 
+{
+    inputBoxWrapper("Change speed", "wsX", "1.0", callback);
+}
+
+void getFps(void (*callback)(double)) 
+{
+    inputBoxWrapper("Change FPS", "wsX", "60.0", callback);
 }

@@ -197,7 +197,6 @@ static char* InputBoxHelper(char* Prompt, char* Title, char* Default)
     hr = spVBScriptParse->ParseScriptText(WideEval.c_str(), NULL, NULL, NULL, 0, 0, SCRIPTTEXT_ISEXPRESSION, &result, &ei);
     UnhookWindowsHookEx(hHook);
 
-
     // Cleanup
     spVBScriptParse = NULL;
     spVBScript = NULL;
