@@ -88,8 +88,8 @@ void pastePickups() {
     std::string stdstring(lvlstring);
     printf("standard string\n");
 
-    int64_t state = base + 0x3222D0;
-    int64_t layer = *((int64_t*)(state + 0x168));
+    wptr state = *(wptr*)(base + 0x3222d0);
+    wptr layer = *((wptr*)(state + 0x168));
     if (layer) {
         void* editor = *((void**)(layer + 0x380));
         pasteObjects(editor, stdstring);
@@ -105,6 +105,24 @@ void rout_rec(wptr a, double b) {
     if (prev_xpos == 0.0 && practice_record_mode) {
         printf("we at 0,  checkweight is %lf\n", practice_hiddencheckweight);
         practicePrune(practice_hiddencheckweight);
+
+        if (checkpoints->size() > 0) {
+            wptr playobj1 = *((wptr*)(a + 0x224));
+            wptr playobj2 = *((wptr*)(a + 0x228));
+
+            Checkpoint ch = checkpoints->back();
+            *((float*)(playobj1 + 0x62C)) = ch.accel;
+            *((float*)(playobj2 + 0x62C)) = ch.accel2;
+
+            *((float*)(playobj1 + 0x67c)) = ch.xpos;
+            *((float*)(playobj2 + 0x67c)) = ch.xpos;
+
+            *((float*)(playobj1 + 0x20)) = ch.rotation;
+            *((float*)(playobj2 + 0x20)) = ch.rotation2;
+
+            *((float*)(playobj1 + 0x24)) = ch.rotation;
+            *((float*)(playobj2 + 0x24)) = ch.rotation2;
+        }
     }
 
     if (practice_record_mode) {
@@ -136,6 +154,7 @@ void rout_rec(wptr a, double b) {
             tmp.key = ARROW;
             tmp.down = modifier1_keyDown;
             PracticeMode[arrayCounter] = tmp;
+            //printf("practice macro,,,, epic\n");
         }
         ++arrayCounter;
     }
@@ -158,6 +177,7 @@ void rout_rec(wptr a, double b) {
             tmp.key = SPACE;
             tmp.down = modifier1_keyDown;
             PracticeMode[arrayCounter] = tmp;
+            //printf("practice macro,,,, epic\n");
         }
         ++arrayCounter;
     }
@@ -202,6 +222,7 @@ void __fastcall practice_toggle(void* instance, void*, bool toggle) {
     practice_og(/*reinterpret_cast<LPVOID>(play_layer)*/instance, toggle);
     practice_record_mode = toggle;
     practice_playerweight = 0;
+    printf("me when i toggle practice mode:\n");
     if (toggle) arrayCounter = 0;
 }
 
@@ -211,21 +232,31 @@ void* __stdcall newLevel(void* inst) {
     return createPlay(inst);
 }
 
-void practice_markCheckpoint(void* instance) {
-    practice_ogCheckpoint(instance);
+void* __fastcall practice_markCheckpoint(wptr instance) {
 
     if (prev_xpos != 0) {
-        checkpoints->push_back(prev_xpos);
+        wptr playob1 = *(wptr*)(instance + 0x224);
+        wptr playob2 = *(wptr*)(instance + 0x228);
+
+        float rota1 = *(float*)(playob1 + 0x20);
+        float acc1 = *(float*)(playob1 + 0x62C);
+
+        float rota2 = *(float*)(playob2 + 0x20);
+        float acc2 = *(float*)(playob2 + 0x62C);
+
+        Checkpoint ch = {prev_xpos, rota1, acc1, rota2, acc2};
+        checkpoints->push_back(ch);
         practice_hiddencheckweight = prev_xpos;
 
 
         printf("added checkweight. weight: %lf\n", practice_hiddencheckweight);
     }
+    return practice_ogCheckpoint(instance);
 }
-void practice_removeCheckpoint(void* instance) {
+void __fastcall practice_removeCheckpoint(void* instance) {
     practice_ogRemove(instance);
     checkpoints->pop_back();
-    practice_hiddencheckweight = checkpoints->back();
+    practice_hiddencheckweight = checkpoints->back().xpos;
     printf("removed checkweight. weight: %lf\n", practice_hiddencheckweight);
 }
 void __fastcall practice_playerDies(void* instance, void*, void* player, void* game) {
@@ -386,12 +417,11 @@ void* __fastcall editorLock(void* inst, void* dummy, float delta) {
 
 void setupAddresses() {
     MH_Initialize();
-    checkpoints = new std::vector<double>();
+    checkpoints = new std::vector<Checkpoint>();
     base = reinterpret_cast<uintptr_t>(GetModuleHandle(0));
     cocosbase = GetModuleHandleA("libcocos2d.dll");
 
     pasteObjects = reinterpret_cast<void(__thiscall*)(void*, std::string)>(base + 0x88240);
-
     if (!cocosbase) return;
 
     set_time_scale = reinterpret_cast<void(__thiscall*)(void*,float)>(GetProcAddress(cocosbase, "?setTimeScale@CCScheduler@cocos2d@@QAEXM@Z"));
@@ -415,7 +445,7 @@ void setupAddresses() {
     rd_route(touche, eventClickCallback, touches);
 
     rd_route(base + 0x20D0D0, practice_toggle, practice_og);
-    rd_route(base + 0x20b450, practice_markCheckpoint, practice_ogCheckpoint);
+    rd_route(base + 0x20b050, practice_markCheckpoint, practice_ogCheckpoint);
     rd_route(base + 0x20B830, practice_removeCheckpoint, practice_ogRemove);
     rd_route(base + 0x20a1a0, practice_playerDies, practice_ogDies);
     rd_route(base + 0x1fb6d0, newLevel, createPlay);

@@ -15,6 +15,15 @@ typedef HMODULE wmodule;
 typedef int pid_t;
 typedef long hook_t;
 
+typedef struct Checkpoint {
+    float xpos;
+    float rotation;
+    float accel;
+
+    float accel2;
+    float rotation2;
+} Checkpoint;
+
 typedef struct MacroType {
     double xpos;
     int key;
@@ -39,7 +48,7 @@ void* (__thiscall *editorInit)(void*, float);
 void (__thiscall *pickup)(void*, int, int);  // = 0x185a20;
 //void (*decrement)(void*, int);  // = 0x185b70;
 void (__thiscall *practice_og)(void*, bool);
-void (__thiscall *practice_ogCheckpoint)(void*);
+void* (__thiscall *practice_ogCheckpoint)(wptr);
 void (__thiscall *practice_ogRemove)(void*);
 void (__thiscall *practice_ogDies)(void*, void*, void*);
 void (*pauseGame)(long, bool);
@@ -81,4 +90,4 @@ double practice_playerweight, practice_hiddencheckweight = 0.0f;
 double stop_spam_prev = 0.0;
 double prev_xpos = 0.0;
 
-std::vector<double>* checkpoints;
+std::vector<Checkpoint>* checkpoints;
