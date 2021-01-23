@@ -109,18 +109,16 @@ void rout_rec(wptr a, double b) {
         if (checkpoints->size() > 0) {
             wptr playobj1 = *((wptr*)(a + 0x224));
             wptr playobj2 = *((wptr*)(a + 0x228));
-
             Checkpoint ch = checkpoints->back();
+            if (!playobj1) return;
             *((float*)(playobj1 + 0x62C)) = ch.accel;
-            *((float*)(playobj2 + 0x62C)) = ch.accel2;
-
             *((float*)(playobj1 + 0x67c)) = ch.xpos;
-            *((float*)(playobj2 + 0x67c)) = ch.xpos;
-
             *((float*)(playobj1 + 0x20)) = ch.rotation;
-            *((float*)(playobj2 + 0x20)) = ch.rotation2;
-
             *((float*)(playobj1 + 0x24)) = ch.rotation;
+            if (!playobj2) return;
+            *((float*)(playobj2 + 0x67c)) = ch.xpos;
+            *((float*)(playobj2 + 0x62C)) = ch.accel2;
+            *((float*)(playobj2 + 0x20)) = ch.rotation2;
             *((float*)(playobj2 + 0x24)) = ch.rotation2;
         }
     }
@@ -233,22 +231,21 @@ void* __stdcall newLevel(void* inst) {
 }
 
 void* __fastcall practice_markCheckpoint(wptr instance) {
-
+    float rota1, acc1, rota2, acc2;
     if (prev_xpos != 0) {
         wptr playob1 = *(wptr*)(instance + 0x224);
         wptr playob2 = *(wptr*)(instance + 0x228);
-
-        float rota1 = *(float*)(playob1 + 0x20);
-        float acc1 = *(float*)(playob1 + 0x62C);
-
-        float rota2 = *(float*)(playob2 + 0x20);
-        float acc2 = *(float*)(playob2 + 0x62C);
-
+        if (playob1) {
+            rota1 = *(float*)(playob1 + 0x20);
+            acc1 = *(float*)(playob1 + 0x62C);
+        }
+        if (playob2) {
+            rota2 = *(float*)(playob2 + 0x20);
+            acc2 = *(float*)(playob2 + 0x62C);
+        }
         Checkpoint ch = {prev_xpos, rota1, acc1, rota2, acc2};
         checkpoints->push_back(ch);
         practice_hiddencheckweight = prev_xpos;
-
-
         printf("added checkweight. weight: %lf\n", practice_hiddencheckweight);
     }
     return practice_ogCheckpoint(instance);
