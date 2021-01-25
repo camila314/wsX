@@ -61,7 +61,7 @@ char const* getPickupString() {
             itemid = 0;
             count = 1;
         }
-        printf("test: %f\n", 432.0);
+        printf("paste xpos: %f\n", event.xpos);
         char formatted[256];
         sprintf_s(formatted, "1,1817,2,%lf,3,%d,36,1,80,%d,77,%d;", event.xpos, 100 + (50 * itemid), itemid, count);
         output += formatted;
@@ -152,7 +152,8 @@ void rout_rec(wptr a, double b) {
             tmp.key = ARROW;
             tmp.down = modifier1_keyDown;
             PracticeMode[arrayCounter] = tmp;
-            //printf("practice macro,,,, epic\n");
+            //printf("practice macro xpos: %lf\n", prev_xpos);
+
         }
         ++arrayCounter;
     }
@@ -175,7 +176,8 @@ void rout_rec(wptr a, double b) {
             tmp.key = SPACE;
             tmp.down = modifier1_keyDown;
             PracticeMode[arrayCounter] = tmp;
-            //printf("practice macro,,,, epic\n");
+            //printf("practice macro xpos: %lf\n", prev_xpos);
+
         }
         ++arrayCounter;
     }
