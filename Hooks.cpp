@@ -2,7 +2,7 @@
 #include "Symbols.h"
 #include "Hooks.h"
 #include "Gui.h"
-
+#include <sstream>
 #define rd_route(a, b, c) MH_CreateHook((void*)(a), b, (void**)&c); \
     MH_EnableHook((void*)(a))
 #define unimplemented() printf("%s\n", "unimplemented~!")
@@ -85,14 +85,20 @@ void pastePickups() {
     }
 
     printf("before the standard string\n");
-    std::string stdstring(lvlstring);
+    std::istringstream stdstring(lvlstring);
+    std::string s;
     printf("standard string\n");
 
     wptr state = *(wptr*)(base + 0x3222d0);
     wptr layer = *((wptr*)(state + 0x168));
     if (layer) {
         void* editor = *((void**)(layer + 0x380));
-        pasteObjects(editor, stdstring);
+        while (getline(stdstring, s, ';')) {
+            if (!s.empty()) {
+                s.push_back(';');
+                pasteObjects(editor, s);
+            }
+        }
     }
     else {
         printf("you arent even in the editor lmao\n");
@@ -107,6 +113,7 @@ void rout_rec(wptr a, double b) {
         practicePrune(practice_hiddencheckweight);
 
         if (checkpoints->size() > 0) {
+            printf("size: %d", checkpoints->size());
             wptr playobj1 = *((wptr*)(a + 0x224));
             wptr playobj2 = *((wptr*)(a + 0x228));
             Checkpoint ch = checkpoints->back();
@@ -172,9 +179,9 @@ void rout_rec(wptr a, double b) {
             //unimplemented();
             MType tmp;
             double xpos = prev_xpos;
-            tmp.xpos = b;
+            tmp.xpos = xpos;
             tmp.key = SPACE;
-            tmp.down = modifier1_keyDown;
+            tmp.down = modifier2_keyDown;
             PracticeMode[arrayCounter] = tmp;
             //printf("practice macro xpos: %lf\n", prev_xpos);
 
