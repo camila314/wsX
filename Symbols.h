@@ -54,6 +54,7 @@ void (__thiscall *practice_ogDies)(void*, void*, void*);
 void (*pauseGame)(long, bool);
 void (__thiscall *pasteObjects)(void*, std::string);
 void (__thiscall *ogMain)(void*, float);
+void (__thiscall *resetOg)(wptr);
 void (__thiscall *playDeathEffect)(void*);
 void* (__stdcall *sharedApplication)();
 void(__thiscall* setAnimInt)(void*, double);

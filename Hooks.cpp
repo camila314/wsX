@@ -108,28 +108,6 @@ void pastePickups() {
 void rout_rec(wptr a, double b) {
     if (arrayCounter >= arraySize) return;
 
-    if (prev_xpos == 0.0 && practice_record_mode) {
-        printf("we at 0,  checkweight is %lf\n", practice_hiddencheckweight);
-        practicePrune(practice_hiddencheckweight);
-
-        if (checkpoints->size() > 0) {
-            printf("size: %d", checkpoints->size());
-            wptr playobj1 = *((wptr*)(a + 0x224));
-            wptr playobj2 = *((wptr*)(a + 0x228));
-            Checkpoint ch = checkpoints->back();
-            if (!playobj1) return;
-            *((float*)(playobj1 + 0x62C)) = ch.accel;
-            *((float*)(playobj1 + 0x67c)) = ch.xpos;
-            *((float*)(playobj1 + 0x20)) = ch.rotation;
-            *((float*)(playobj1 + 0x24)) = ch.rotation;
-            if (!playobj2) return;
-            *((float*)(playobj2 + 0x67c)) = ch.xpos;
-            *((float*)(playobj2 + 0x62C)) = ch.accel2;
-            *((float*)(playobj2 + 0x20)) = ch.rotation2;
-            *((float*)(playobj2 + 0x24)) = ch.rotation2;
-        }
-    }
-
     if (practice_record_mode) {
         wptr playobj = *((wptr*)(a + 0x224));
         prev_xpos = *((float*)(playobj + 0x67c));
@@ -272,6 +250,29 @@ void __fastcall practice_playerDies(void* instance, void*, void* player, void* g
         practicePrune(practice_hiddencheckweight);
         prev_xpos = 0.0;
     }
+}
+
+void __fastcall resetLevel(wptr instance) {
+    resetOg(instance);
+    if (practice_record_mode && checkpoints->size()>0) {
+            practicePrune(practice_hiddencheckweight);
+            printf("size: %d", checkpoints->size());
+            wptr playobj1 = *((wptr*)(instance + 0x224));
+            wptr playobj2 = *((wptr*)(instance + 0x228));
+            Checkpoint ch = checkpoints->back();
+            if (!playobj1) return;
+            *((float*)(playobj1 + 0x62C)) = ch.accel;
+            *((float*)(playobj1 + 0x67c)) = ch.xpos;
+            *((float*)(playobj1 + 0x20)) = ch.rotation;
+            *((float*)(playobj1 + 0x24)) = ch.rotation;
+            printf("does it?\n");
+            if (!playobj2) return;
+            *((float*)(playobj2 + 0x67c)) = ch.xpos;
+            *((float*)(playobj2 + 0x62C)) = ch.accel2;
+            *((float*)(playobj2 + 0x20)) = ch.rotation2;
+            *((float*)(playobj2 + 0x24)) = ch.rotation2;
+    }
+
 }
 
 void* __cdecl routBoth() {
@@ -455,6 +456,7 @@ void setupAddresses() {
     rd_route(base + 0x20B830, practice_removeCheckpoint, practice_ogRemove);
     rd_route(base + 0x20a1a0, practice_playerDies, practice_ogDies);
     rd_route(base + 0x1fb6d0, newLevel, createPlay);
+    rd_route(base + 0x20BF00, resetLevel, resetOg);
 
     void* mainthread = GetProcAddress(cocosbase, "?update@CCScheduler@cocos2d@@UAEXM@Z");
     rd_route(mainthread, mainLoop, ogMain);
